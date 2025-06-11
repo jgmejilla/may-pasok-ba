@@ -1,12 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-import os
-from supabase import create_client, Client
-from dotenv import load_dotenv
-from datetime import datetime, timezone
-import requests 
-import json
 
 app = FastAPI()
 app.add_middleware(

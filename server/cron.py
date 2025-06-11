@@ -1,8 +1,14 @@
-
-
 # get the current date time
 # connect to supabase
 # run chron job to update
+
+import os
+from supabase import create_client, Client
+from dotenv import load_dotenv
+from datetime import datetime, timezone
+import requests 
+import json
+
 
 load_dotenv()
 
