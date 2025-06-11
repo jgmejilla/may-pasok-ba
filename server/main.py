@@ -1,7 +1,17 @@
+# FastAPI skeleton
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+# Supabase interactions
+import os
+from supabase import create_client, Client
+from dotenv import load_dotenv
+from datetime import datetime, timezone
+import requests 
+import json
 
+# initialize app
+load_dotenv() 
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
@@ -11,9 +21,43 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# initialize database connection
+url: str = os.environ.get("SUPABASE_URL")
+key: str = os.environ.get("SUPABASE_KEY")
+supabase: Client = create_client(url, key)
+
+# pathing
+HOST_ROOT = "https://may-pasok-ba.onrender.com"
+LOCAL_ROOT = "http://localhost:8000/"
+
 # --------------------
 # endpoints begin here 
 # --------------------
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
+
+@app.get("/test")
+async def test():
+    # prevent backend from spinning down
+    response = requests.get(f'{HOST_ROOT}/?nocache={datetime.now()}')
+    message = response.json()
+
+    # insert to database
+    date = datetime.now(timezone.utc).isoformat()
+    supabase.table("entries") \
+        .insert({
+            "created_at": date, 
+            "response": "don't spin down"
+        }) \
+        .execute()
+    
+    return message
+
+@app.get("/scrape")
+async def scrape():
+    pass
+
+@app.delete("/clear-logs")
+async def clear_logs():
+    pass
