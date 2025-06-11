@@ -40,8 +40,6 @@ async def root():
 @app.get("/test")
 async def test():
     # prevent backend from spinning down
-    response = requests.get(f'{HOST_ROOT}/?nocache={datetime.now()}')
-    message = response.json()
 
     # insert to database
     date = datetime.now(timezone.utc).isoformat()
@@ -52,7 +50,7 @@ async def test():
         }) \
         .execute()
     
-    return message
+    return {"message": "success"}
 
 @app.get("/scrape")
 async def scrape():
