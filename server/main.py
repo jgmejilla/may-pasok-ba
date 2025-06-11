@@ -54,7 +54,7 @@ async def test():
 
 @app.get("/scrape")
 async def scrape():
-    pass
+    return {"message": "scraping"}
 
 @app.delete("/clear-logs")
 async def clear_logs():
