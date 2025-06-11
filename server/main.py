@@ -39,21 +39,19 @@ async def root():
 
 @app.get("/test")
 async def test():
-    # prevent backend from spinning down
-
-    # insert to database
     date = datetime.now(timezone.utc).isoformat()
-    supabase.table("entries") \
-        .insert({
-            "created_at": date, 
-            "response": "don't spin down"
+    supabase.table("tests") \
+        .update({
+            "last_modified": date,
         }) \
+        .eq("response", "spin") \
         .execute()
     
     return {"message": "success"}
 
 @app.get("/scrape")
 async def scrape():
+    # scrape data from LGUs
     return {"message": "scraping"}
 
 @app.delete("/clear-logs")
