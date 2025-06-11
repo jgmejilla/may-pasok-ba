@@ -47,7 +47,7 @@ async def test():
         .eq("response", "spin") \
         .execute()
     
-    return {"message": "success"}
+    return {"id": "36"}
 
 @app.get("/scrape")
 async def scrape():
