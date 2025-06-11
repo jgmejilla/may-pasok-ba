@@ -1,9 +1,4 @@
-import os
-from supabase import create_client, Client
-from dotenv import load_dotenv
-from datetime import datetime, timezone
-import requests 
-import json
+
 
 # get the current date time
 # connect to supabase
