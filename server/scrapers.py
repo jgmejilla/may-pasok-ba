@@ -2,10 +2,14 @@ from bs4 import BeautifulSoup
 import requests
 from datetime import datetime, timezone
 
-RAPPLER = 'https://www.rappler.com/latest/'
-RAPPLER_ALT = 'https://www.rappler.com/topic/class-suspensions'
+def inquirer():
+    TAGS = ["class suspensions", "extreme heat", "walang pasok", "pagasa", "weather"]
+    pass
 
 def rappler():
+    RAPPLER = 'https://www.rappler.com/latest/'
+    RAPPLER_ALT = 'https://www.rappler.com/topic/class-suspensions'
+
     response = requests.get(RAPPLER)
     page = response.text
     soup = BeautifulSoup(page, 'html.parser')
