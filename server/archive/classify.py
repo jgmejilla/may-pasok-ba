@@ -7,6 +7,9 @@ import os
 # load .env from parent directory
 load_dotenv(dotenv_path="../.env")
 
+def preprocess():
+    KEYWORDS = ['walang', 'pasok', 'class', 'classes']
+
 app = FastAPI()
 
 @app.get("/classify-excerpt", response_class=PlainTextResponse)
