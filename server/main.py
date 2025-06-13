@@ -11,7 +11,7 @@ import requests
 import json
 
 # webscraping using BeautifulSoup
-from server.scrapers import rappler
+from scrapers import rappler
 
 # initialize app
 load_dotenv() 
