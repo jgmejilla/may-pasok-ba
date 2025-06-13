@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import os
 from supabase import create_client, Client
 from dotenv import load_dotenv
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import requests 
 import json
 
@@ -58,8 +58,6 @@ async def test():
 async def scrapers():
     articles = rappler()
 
-    
-
     response = (
         supabase 
         .table("articles") 
@@ -69,6 +67,17 @@ async def scrapers():
     
     return response
 
-@app.delete("/clear")
+@app.get("/clear")
 async def clear():
-    pass
+    # clears articles over 3 days of age
+    three_days_ago = (datetime.now(timezone.utc) - timedelta(days=3)).isoformat()
+    
+    response = (
+        supabase
+        .table("articles")
+        .delete()
+        .lt("time_scraped", three_days_ago)
+        .execute()
+    )
+    
+    return response
