@@ -11,7 +11,7 @@ import requests
 import json
 
 # webscraping using BeautifulSoup
-from server.scrapers import rappler
+from scrapers import rappler
 
 # initialize app
 load_dotenv() 
@@ -61,7 +61,7 @@ async def scrapers():
     response = (
         supabase 
         .table("articles") 
-        .upsert(articles, on_conflict=["link"]) 
+        .upsert(articles, on_conflict=["link"], ignore_duplicates=True) 
         .execute()
     )
     
