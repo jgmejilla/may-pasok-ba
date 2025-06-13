@@ -61,7 +61,7 @@ async def scrapers():
     response = (
         supabase 
         .table("articles") 
-        .upsert(articles, on_conflict=["link"]) 
+        .upsert(articles, on_conflict=["link"], ignore_duplicates=True) 
         .execute()
     )
     
