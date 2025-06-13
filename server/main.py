@@ -10,6 +10,9 @@ from datetime import datetime, timezone
 import requests 
 import json
 
+# webscraping using BeautifulSoup
+from server.scrapers import rappler
+
 # initialize app
 load_dotenv() 
 app = FastAPI()
@@ -50,9 +53,10 @@ async def test():
     return {"id": "36"}
 
 @app.get("/scrape")
-async def scrape():
+async def scrapers():
     # scrape data from LGUs
-    return {"message": "scraping"}
+    
+    return rappler()
 
 @app.delete("/clear-logs")
 async def clear_logs():
