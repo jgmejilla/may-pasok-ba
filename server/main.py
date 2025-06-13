@@ -43,21 +43,32 @@ async def root():
 @app.get("/test")
 async def test():
     date = datetime.now(timezone.utc).isoformat()
-    supabase.table("tests") \
+    response = (
+        supabase.table("tests") 
         .update({
             "last_modified": date,
-        }) \
-        .eq("response", "spin") \
+        }) 
+        .eq("response", "spin") 
         .execute()
+    )
     
-    return {"id": "36"}
+    return response
 
 @app.get("/scrape")
 async def scrapers():
-    # scrape data from LGUs
-    
-    return rappler()
+    articles = rappler()
 
-@app.delete("/clear-logs")
-async def clear_logs():
+    
+
+    response = (
+        supabase 
+        .table("articles") 
+        .upsert(articles, on_conflict=["link"]) 
+        .execute()
+    )
+    
+    return response
+
+@app.delete("/clear")
+async def clear():
     pass
