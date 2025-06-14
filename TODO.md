@@ -5,3 +5,5 @@
 [] change some gets to posts and deletes
 [] learn postman
 [] it nees to be able to scrape articles until it reaches an articles it recognizes
+
+# UI inspiration
