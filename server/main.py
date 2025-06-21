@@ -12,6 +12,7 @@ import json
 
 # webscraping using BeautifulSoup
 from scrapers import rappler
+import classify_titles as ct
 
 # initialize app
 load_dotenv() 
@@ -81,3 +82,55 @@ async def clear():
     )
     
     return response
+
+@app.get("/classify")
+async def classify():
+    fetched = (
+        supabase 
+        .table("articles")
+        .select("*")
+        .order("time_scraped", desc=False)
+        .eq("classified", False)
+        .limit(20)
+        .execute()
+    )
+
+    titles = [entry['title'] for entry in fetched.data]
+    relevance = ct.classify(titles)
+
+    for entry in fetched.data: 
+
+        entry['classified'] = True
+        entry['relevant'] = relevance[entry['title']]
+        
+        _ = (
+            supabase
+            .table('articles')
+            .update({
+                'classified': True,
+                'relevant': relevance[entry['title']]
+            }).eq('id', entry['id'])
+            .execute()
+        )
+
+    
+    relevant_articles = [article for article in fetched.data if article['relevant'] == True]
+
+    if len(relevant_articles) == 0:
+        return []
+
+    needed_keys = {"time_scraped", "title", "link"}
+
+    filtered_by_key = [
+        {k: d[k] for k in needed_keys if k in d}
+        for d in relevant_articles
+    ]
+    
+    inserted = (
+        supabase
+        .table('suspensions')
+        .insert(filtered_by_key)
+        .execute()
+    )
+
+    return inserted
