@@ -10,9 +10,10 @@ from datetime import datetime, timezone, timedelta
 import requests 
 import json
 
-# webscraping using BeautifulSoup
+# helper files
 from scrapers import rappler
 import classify_titles as ct
+
 
 # initialize app
 load_dotenv() 
@@ -41,6 +42,22 @@ LOCAL_ROOT = "http://localhost:8000/"
 async def root():
     return {"message": "Hello World"}
 
+
+@app.get("/ping")
+async def ping():
+    date = datetime.now(timezone.utc).isoformat()
+    response = (
+        supabase.table("ping")
+        .upsert({
+            "id": 1, 
+            "last_pinged": date,
+        })
+        .execute()
+    )
+
+    return response
+    
+
 @app.get("/test")
 async def test():
     date = datetime.now(timezone.utc).isoformat()
@@ -52,7 +69,7 @@ async def test():
         .eq("response", "spin") 
         .execute()
     )
-    
+
     return response
 
 @app.get("/scrape")
