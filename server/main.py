@@ -10,8 +10,10 @@ from datetime import datetime, timezone, timedelta
 import requests 
 import json
 
-# webscraping using BeautifulSoup
+# helper files
 from scrapers import rappler
+import classify_titles as ct
+
 
 # initialize app
 load_dotenv() 
@@ -40,6 +42,22 @@ LOCAL_ROOT = "http://localhost:8000/"
 async def root():
     return {"message": "Hello World"}
 
+
+@app.get("/ping")
+async def ping():
+    date = datetime.now(timezone.utc).isoformat()
+    response = (
+        supabase.table("ping")
+        .upsert({
+            "id": 1, 
+            "last_pinged": date,
+        })
+        .execute()
+    )
+
+    return response
+    
+
 @app.get("/test")
 async def test():
     date = datetime.now(timezone.utc).isoformat()
@@ -51,7 +69,7 @@ async def test():
         .eq("response", "spin") 
         .execute()
     )
-    
+
     return response
 
 @app.get("/scrape")
@@ -81,3 +99,55 @@ async def clear():
     )
     
     return response
+
+@app.get("/classify")
+async def classify():
+    fetched = (
+        supabase 
+        .table("articles")
+        .select("*")
+        .order("time_scraped", desc=False)
+        .eq("classified", False)
+        .limit(20)
+        .execute()
+    )
+
+    titles = [entry['title'] for entry in fetched.data]
+    relevance = ct.classify(titles)
+
+    for entry in fetched.data: 
+
+        entry['classified'] = True
+        entry['relevant'] = relevance[entry['title']]
+        
+        _ = (
+            supabase
+            .table('articles')
+            .update({
+                'classified': True,
+                'relevant': relevance[entry['title']]
+            }).eq('id', entry['id'])
+            .execute()
+        )
+
+    
+    relevant_articles = [article for article in fetched.data if article['relevant'] == True]
+
+    if len(relevant_articles) == 0:
+        return []
+
+    needed_keys = {"time_scraped", "title", "link"}
+
+    filtered_by_key = [
+        {k: d[k] for k in needed_keys if k in d}
+        for d in relevant_articles
+    ]
+    
+    inserted = (
+        supabase
+        .table('suspensions')
+        .insert(filtered_by_key)
+        .execute()
+    )
+
+    return inserted
