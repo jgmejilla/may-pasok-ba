@@ -13,6 +13,10 @@ import json
 # helper files
 from scrapers import rappler
 import classify_titles as ct
+import get_dates as gd
+
+# scrapers
+from bs4 import BeautifulSoup
 
 
 # initialize app
@@ -106,7 +110,7 @@ async def classify():
         supabase 
         .table("articles")
         .select("*")
-        .order("time_scraped", desc=False)
+        .order("id", desc=False)
         .eq("classified", False)
         .limit(20)
         .execute()
@@ -129,7 +133,6 @@ async def classify():
             }).eq('id', entry['id'])
             .execute()
         )
-
     
     relevant_articles = [article for article in fetched.data if article['relevant'] == True]
 
@@ -151,3 +154,30 @@ async def classify():
     )
 
     return inserted
+
+@app.get("/get-dates")
+async def get_dates():
+    try: 
+        fetched = (
+            supabase
+            .table("suspensions")
+            .select("*")
+            .order("id")
+            # .eq("processed", False)
+            .limit(10)
+            .execute()
+        )
+
+        articles = fetched.data
+        link = articles[0]["link"]
+        response = requests.get(link)
+
+        page = response.text
+        soup = BeautifulSoup(page, 'html.parser')
+        article_content = soup.body.main.article.text
+        
+        return gd.get_dates(article_content)
+    except:
+        return None
+
+    
